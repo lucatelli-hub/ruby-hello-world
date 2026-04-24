@@ -1,0 +1,32 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: ruby-app
+  namespace: app-project
+spec:
+  replicas: 1
+  selector:
+    app: ruby-app
+    deploymentconfig: ruby-app
+  template:
+    metadata:
+      labels:
+        app: ruby-app
+        deploymentconfig: ruby-app
+    spec:
+      containers:
+        - name: ruby-app
+          image: image-registry.openshift-image-registry.svc:5000/app-project/ruby-app:latest
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - ruby-app
+        from:
+          kind: ImageStreamTag
+          name: ruby-app:latest
